@@ -30,6 +30,9 @@
                         <x-nav-link :href="route('service-requests.index')" :active="request()->routeIs('service-requests.*')">
                             {{ __('Requests') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('enquiries.index')" :active="request()->routeIs('enquiries.*')">
+                            {{ __('Enquiries') }}
+                        </x-nav-link>
                     @endrole
                 </div>
             </div>
