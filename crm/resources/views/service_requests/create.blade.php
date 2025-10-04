@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-3xl mx-auto p-6">
   <h1 class="text-2xl font-semibold mb-4">New Service Request</h1>
-  <form method="POST" action="{{ route('service-requests.store') }}" class="space-y-4">
+  <form method="POST" action="{{ route('service-requests.store') }}" class="space-y-4" x-data='{"services": @json($services), days: null}'>
     @csrf
     <x-input-label for="customer_id" value="Customer" />
     <select id="customer_id" name="customer_id" class="w-full border rounded p-2">
@@ -13,14 +13,15 @@
     </select>
 
     <x-input-label for="service_id" value="Service" />
-    <select id="service_id" name="service_id" class="w-full border rounded p-2">
-      @foreach($services as $id => $name)
-        <option value="{{ $id }}">{{ $name }}</option>
+    <select id="service_id" name="service_id" class="w-full border rounded p-2" @change="days = services.find(s => s.id == $event.target.value)?.expected_completion_days || null">
+      <option value="" disabled selected>Select a service</option>
+      @foreach($services as $service)
+        <option value="{{ $service->id }}">{{ $service->name }}</option>
       @endforeach
     </select>
 
     <x-input-label for="due_date" value="Due Date" />
-    <x-text-input id="due_date" name="due_date" type="date" value="{{ old('due_date') }}" class="w-full" />
+    <x-text-input id="due_date" name="due_date" type="date" value="{{ old('due_date') }}" class="w-full" x-bind:value="days ? new Date(Date.now() + days*24*60*60*1000).toISOString().slice(0,10) : ''" />
 
     <x-input-label for="status" value="Status" />
     <select id="status" name="status" class="w-full border rounded p-2">

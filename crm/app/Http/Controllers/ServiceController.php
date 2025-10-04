@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Service;
+use App\Models\DocumentRequirement;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
@@ -33,8 +34,23 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'expected_completion_days' => 'required|integer|min:1',
+            'documents' => 'array',
+            'documents.*.name' => 'nullable|string|max:255',
+            'documents.*.is_mandatory' => 'nullable|boolean',
         ]);
-        $service = Service::create($validated);
+        $serviceData = collect($validated)->only(['name','description','expected_completion_days'])->all();
+        $service = Service::create($serviceData);
+
+        $documents = collect($request->input('documents', []))
+            ->filter(fn ($d) => isset($d['name']) && trim($d['name']) !== '')
+            ->map(fn ($d) => [
+                'service_id' => $service->id,
+                'name' => $d['name'],
+                'is_mandatory' => isset($d['is_mandatory']) ? (bool)$d['is_mandatory'] : false,
+            ])->all();
+        if (!empty($documents)) {
+            DocumentRequirement::insert($documents);
+        }
         return redirect()->route('services.show', $service)->with('status', 'Service created');
     }
 
@@ -63,8 +79,24 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'expected_completion_days' => 'required|integer|min:1',
+            'documents' => 'array',
+            'documents.*.name' => 'nullable|string|max:255',
+            'documents.*.is_mandatory' => 'nullable|boolean',
         ]);
-        $service->update($validated);
+        $service->update(collect($validated)->only(['name','description','expected_completion_days'])->all());
+
+        // sync documents: simple approach - delete and recreate
+        $service->documentRequirements()->delete();
+        $documents = collect($request->input('documents', []))
+            ->filter(fn ($d) => isset($d['name']) && trim($d['name']) !== '')
+            ->map(fn ($d) => [
+                'service_id' => $service->id,
+                'name' => $d['name'],
+                'is_mandatory' => isset($d['is_mandatory']) ? (bool)$d['is_mandatory'] : false,
+            ])->all();
+        if (!empty($documents)) {
+            DocumentRequirement::insert($documents);
+        }
         return redirect()->route('services.show', $service)->with('status', 'Service updated');
     }
 

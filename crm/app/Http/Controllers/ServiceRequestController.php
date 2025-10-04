@@ -29,7 +29,7 @@ class ServiceRequestController extends Controller
     public function create()
     {
         $customers = Customer::orderBy('name')->pluck('name','id');
-        $services = Service::orderBy('name')->pluck('name','id');
+        $services = Service::orderBy('name')->select(['id','name','expected_completion_days'])->get();
         return view('service_requests.create', compact('customers','services'));
     }
 
@@ -65,7 +65,7 @@ class ServiceRequestController extends Controller
     public function edit(ServiceRequest $serviceRequest)
     {
         $customers = Customer::orderBy('name')->pluck('name','id');
-        $services = Service::orderBy('name')->pluck('name','id');
+        $services = Service::orderBy('name')->select(['id','name','expected_completion_days'])->get();
         return view('service_requests.edit', compact('serviceRequest','customers','services'));
     }
 
