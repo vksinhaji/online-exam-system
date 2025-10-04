@@ -6,6 +6,7 @@ use App\Models\Enquiry;
 use App\Models\Service;
 use App\Http\Requests\EnquiryStoreRequest;
 use App\Http\Requests\EnquiryUpdateRequest;
+use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -103,5 +104,18 @@ class EnquiryController extends Controller
                 ->route('enquiries.print', $enquiry)
                 ->with('status', 'PDF generator unavailable. Please install barryvdh/laravel-dompdf.');
         }
+    }
+
+    public function sendWhatsApp(Enquiry $enquiry, WhatsAppService $whatsApp)
+    {
+        $enquiry->load(['service']);
+        // Assume mobile_number is E.164 or local and Cloud API will accept
+        $message = "Enquiry #{$enquiry->id}\n".
+            "Customer: {$enquiry->customer_name}\n".
+            "Mobile: {$enquiry->mobile_number}\n".
+            "Service: ".($enquiry->service->name ?? '-')."\n".
+            (optional($enquiry->estimated_completion_date)?"Estimated Completion: ".$enquiry->estimated_completion_date->format('Y-m-d')."\n":"");
+        $result = $whatsApp->sendText($enquiry->mobile_number, $message);
+        return back()->with('status', $result['ok'] ? 'WhatsApp sent' : ('WhatsApp failed: '.$result['error']));
     }
 }

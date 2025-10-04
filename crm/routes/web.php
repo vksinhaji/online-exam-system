@@ -30,12 +30,14 @@ Route::middleware('auth')->group(function () {
     // Admin + Staff routes
     Route::middleware('role:admin|staff')->group(function () {
         Route::resource('service-requests', ServiceRequestController::class)->only(['index','show','create','store','edit','update']);
+        Route::post('service-requests/{service_request}/whatsapp', [ServiceRequestController::class, 'sendWhatsApp'])->name('service-requests.whatsapp');
         Route::post('service-requests/{service_request}/progress', [ProgressUpdateController::class, 'store'])->name('service-requests.progress.store');
 
         // Enquiries (capture leads before creating full service request)
         Route::resource('enquiries', EnquiryController::class);
         Route::get('enquiries/{enquiry}/print', [EnquiryController::class, 'print'])->name('enquiries.print');
         Route::get('enquiries/{enquiry}/pdf', [EnquiryController::class, 'pdf'])->name('enquiries.pdf');
+        Route::post('enquiries/{enquiry}/whatsapp', [EnquiryController::class, 'sendWhatsApp'])->name('enquiries.whatsapp');
     });
 });
 

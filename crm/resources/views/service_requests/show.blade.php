@@ -9,6 +9,10 @@
     </div>
     <div class="space-x-2">
       <a href="{{ route('service-requests.edit', $serviceRequest) }}" class="px-3 py-1 bg-yellow-600 text-white rounded">Edit</a>
+      <form method="POST" action="{{ route('service-requests.whatsapp', $serviceRequest) }}" class="inline">
+        @csrf
+        <button class="px-3 py-1 bg-emerald-600 text-white rounded">Send WhatsApp</button>
+      </form>
       <a href="{{ route('service-requests.index') }}" class="px-3 py-1 bg-gray-600 text-white rounded">Back</a>
     </div>
   </div>
@@ -41,6 +45,10 @@
         <input type="hidden" name="service_request_id" value="{{ $serviceRequest->id }}">
         <x-input-label for="remark" value="Add Remark" />
         <textarea id="remark" name="remark" class="w-full border rounded p-2" placeholder="What changed?"></textarea>
+        <label class="inline-flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" name="notify_whatsapp" value="1">
+          Notify customer via WhatsApp
+        </label>
         <x-primary-button>Add</x-primary-button>
       </form>
     </div>

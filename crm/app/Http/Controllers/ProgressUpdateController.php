@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProgressUpdate;
 use App\Models\ServiceRequest;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,11 +29,12 @@ class ProgressUpdateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, WhatsAppService $whatsApp)
     {
         $validated = $request->validate([
             'service_request_id' => 'required|exists:service_requests,id',
             'remark' => 'required|string',
+            'notify_whatsapp' => 'nullable|boolean',
         ]);
         $validated['user_id'] = Auth::id();
         $update = ProgressUpdate::create($validated);
@@ -46,6 +48,16 @@ class ProgressUpdateController extends Controller
             $serviceRequest->status = 'in_progress';
         }
         $serviceRequest->save();
+
+        if ($request->boolean('notify_whatsapp')) {
+            $serviceRequest->load(['customer','service']);
+            $phone = $serviceRequest->customer->phone;
+            $message = "Update on Service Request #{$serviceRequest->id}\n".
+                "Service: {$serviceRequest->service->name}\n".
+                "Status: ".ucfirst(str_replace('_',' ', $serviceRequest->status))."\n".
+                "Remark: {$update->remark}";
+            $whatsApp->sendText($phone, $message);
+        }
 
         return back()->with('status', 'Progress remark added');
     }

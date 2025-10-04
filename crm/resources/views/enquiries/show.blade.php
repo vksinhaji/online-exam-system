@@ -11,6 +11,10 @@
       <a href="{{ route('enquiries.edit', $enquiry) }}" class="px-3 py-1 bg-yellow-600 text-white rounded">Edit</a>
       <a href="{{ route('enquiries.print', $enquiry) }}" target="_blank" class="px-3 py-1 bg-green-700 text-white rounded">Print</a>
       <a href="{{ route('enquiries.pdf', $enquiry) }}" class="px-3 py-1 bg-indigo-700 text-white rounded">PDF</a>
+      <form method="POST" action="{{ route('enquiries.whatsapp', $enquiry) }}" class="inline">
+        @csrf
+        <button class="px-3 py-1 bg-emerald-600 text-white rounded">Send WhatsApp</button>
+      </form>
       <a href="{{ route('enquiries.index') }}" class="px-3 py-1 bg-gray-600 text-white rounded">Back</a>
     </div>
   </div>
@@ -21,6 +25,9 @@
       <div><strong>Created:</strong> {{ optional($enquiry->created_at)->format('Y-m-d H:i') }}</div>
       <div><strong>Expected Time (days):</strong> {{ $enquiry->service->expected_completion_days ?? '-' }}</div>
       <div><strong>Estimated Completion Date:</strong> {{ optional($enquiry->estimated_completion_date)->format('Y-m-d') ?? '-' }}</div>
+      <div>
+        <strong>WhatsApp:</strong> {{ $enquiry->mobile_number }}
+      </div>
       <div>
         <strong>Notes:</strong>
         <div class="whitespace-pre-wrap">{{ $enquiry->notes }}</div>

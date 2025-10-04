@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ServiceRequest;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -57,6 +58,20 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest->load(['customer','service','assignee','progressUpdates.user']);
         return view('service_requests.show', compact('serviceRequest'));
+    }
+
+    public function sendWhatsApp(ServiceRequest $serviceRequest, WhatsAppService $whatsApp)
+    {
+        $serviceRequest->load(['customer','service']);
+        $phone = $serviceRequest->customer->phone;
+        $message = "Service Request #{$serviceRequest->id}\n".
+            "Customer: {$serviceRequest->customer->name}\n".
+            "Service: {$serviceRequest->service->name}\n".
+            "Status: ".ucfirst(str_replace('_',' ', $serviceRequest->status))."\n".
+            (optional($serviceRequest->due_date)?"Due: ".$serviceRequest->due_date->format('Y-m-d')."\n":"").
+            (filled($serviceRequest->remarks)?"Remarks: {$serviceRequest->remarks}\n":"");
+        $result = $whatsApp->sendText($phone, $message);
+        return back()->with('status', $result['ok'] ? 'WhatsApp sent' : ('WhatsApp failed: '.$result['error']));
     }
 
     /**

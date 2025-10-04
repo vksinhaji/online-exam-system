@@ -32,6 +32,10 @@
               <a href="{{ route('enquiries.edit', $enquiry) }}" class="text-yellow-600">Edit</a>
               <a href="{{ route('enquiries.print', $enquiry) }}" class="text-green-700" target="_blank">Print</a>
               <a href="{{ route('enquiries.pdf', $enquiry) }}" class="text-indigo-700">PDF</a>
+              <form method="POST" action="{{ route('enquiries.whatsapp', $enquiry) }}" class="inline">
+                @csrf
+                <button class="text-emerald-700">WhatsApp</button>
+              </form>
               <form method="POST" action="{{ route('enquiries.destroy', $enquiry) }}" class="inline">
                 @csrf
                 @method('DELETE')
