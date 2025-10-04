@@ -11,6 +11,9 @@
       <a href="{{ route('enquiries.edit', $enquiry) }}" class="px-3 py-1 bg-yellow-600 text-white rounded">Edit</a>
       <a href="{{ route('enquiries.print', $enquiry) }}" target="_blank" class="px-3 py-1 bg-green-700 text-white rounded">Print</a>
       <a href="{{ route('enquiries.pdf', $enquiry) }}" class="px-3 py-1 bg-indigo-700 text-white rounded">PDF</a>
+      @if(config('whatsapp.enabled'))
+      <button onclick="document.getElementById('wa-manual-modal').showModal()" class="px-3 py-1 bg-green-700 text-white rounded">Send WhatsApp</button>
+      @endif
       <a href="{{ route('enquiries.index') }}" class="px-3 py-1 bg-gray-600 text-white rounded">Back</a>
     </div>
   </div>
@@ -43,5 +46,20 @@
       </ul>
     </div>
   </div>
+
+  @if(config('whatsapp.enabled'))
+  <dialog id="wa-manual-modal" class="rounded shadow-lg p-0">
+    <form method="POST" action="{{ route('enquiries.whatsapp', $enquiry) }}" class="p-4 space-y-3">
+      @csrf
+      <div class="text-lg font-semibold">Send WhatsApp Message</div>
+      <div class="text-sm text-gray-500">To: {{ $enquiry->mobile_number ?? 'N/A' }}</div>
+      <textarea name="message" class="w-96 max-w-full border rounded p-2" rows="5" placeholder="Type your message"></textarea>
+      <div class="flex gap-2 justify-end">
+        <button type="button" onclick="document.getElementById('wa-manual-modal').close()" class="px-3 py-1 bg-gray-600 text-white rounded">Cancel</button>
+        <button class="px-3 py-1 bg-green-700 text-white rounded">Send</button>
+      </div>
+    </form>
+  </dialog>
+  @endif
 </div>
 @endsection

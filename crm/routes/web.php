@@ -7,6 +7,7 @@ use App\Http\Controllers\DocumentRequirementController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\ProgressUpdateController;
+use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () { return redirect()->route('dashboard'); });
@@ -31,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin|staff')->group(function () {
         Route::resource('service-requests', ServiceRequestController::class)->only(['index','show','create','store','edit','update']);
         Route::post('service-requests/{service_request}/progress', [ProgressUpdateController::class, 'store'])->name('service-requests.progress.store');
+        // Manual WhatsApp send endpoints
+        Route::post('service-requests/{service_request}/whatsapp', [WhatsAppController::class, 'sendForServiceRequest'])->name('service-requests.whatsapp');
+        Route::post('enquiries/{enquiry}/whatsapp', [WhatsAppController::class, 'sendForEnquiry'])->name('enquiries.whatsapp');
 
         // Enquiries (capture leads before creating full service request)
         Route::resource('enquiries', EnquiryController::class);

@@ -33,6 +33,9 @@
                         <x-nav-link :href="route('enquiries.index')" :active="request()->routeIs('enquiries.*')">
                             {{ __('Enquiries') }}
                         </x-nav-link>
+                        @if(config('whatsapp.enabled'))
+                        <span class="inline-flex items-center text-xs text-green-700 font-semibold px-2 py-1 bg-green-50 rounded">WhatsApp ON</span>
+                        @endif
                     @endrole
                 </div>
             </div>
