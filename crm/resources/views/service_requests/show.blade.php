@@ -9,6 +9,9 @@
     </div>
     <div class="space-x-2">
       <a href="{{ route('service-requests.edit', $serviceRequest) }}" class="px-3 py-1 bg-yellow-600 text-white rounded">Edit</a>
+      @if(config('whatsapp.enabled'))
+      <button onclick="document.getElementById('wa-manual-modal').showModal()" class="px-3 py-1 bg-green-700 text-white rounded">Send WhatsApp</button>
+      @endif
       <a href="{{ route('service-requests.index') }}" class="px-3 py-1 bg-gray-600 text-white rounded">Back</a>
     </div>
   </div>
@@ -45,5 +48,20 @@
       </form>
     </div>
   </div>
+
+  @if(config('whatsapp.enabled'))
+  <dialog id="wa-manual-modal" class="rounded shadow-lg p-0">
+    <form method="POST" action="{{ route('service-requests.whatsapp', $serviceRequest) }}" class="p-4 space-y-3">
+      @csrf
+      <div class="text-lg font-semibold">Send WhatsApp Message</div>
+      <div class="text-sm text-gray-500">To: {{ optional($serviceRequest->customer)->phone ?? 'N/A' }}</div>
+      <textarea name="message" class="w-96 max-w-full border rounded p-2" rows="5" placeholder="Type your message"></textarea>
+      <div class="flex gap-2 justify-end">
+        <button type="button" onclick="document.getElementById('wa-manual-modal').close()" class="px-3 py-1 bg-gray-600 text-white rounded">Cancel</button>
+        <button class="px-3 py-1 bg-green-700 text-white rounded">Send</button>
+      </div>
+    </form>
+  </dialog>
+  @endif
 </div>
 @endsection

@@ -31,6 +31,9 @@
                 <a href="{{ route('service-requests.index') }}" class="block p-6 bg-white dark:bg-gray-800 rounded shadow">
                     <div class="font-semibold">Service Requests</div>
                     <div class="text-sm text-gray-500">Track progress and remarks</div>
+                    @if(config('whatsapp.enabled'))
+                    <div class="mt-2 text-xs text-green-700">WhatsApp notifications are enabled.</div>
+                    @endif
                 </a>
                 @endrole
             </div>

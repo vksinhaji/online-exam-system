@@ -6,6 +6,7 @@ use App\Models\Enquiry;
 use App\Models\Service;
 use App\Http\Requests\EnquiryStoreRequest;
 use App\Http\Requests\EnquiryUpdateRequest;
+use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -39,6 +40,21 @@ class EnquiryController extends Controller
         $validated = $request->validated();
         $validated['created_by'] = Auth::id();
         $enquiry = Enquiry::create($validated);
+
+        // Optionally send an acknowledgement via WhatsApp
+        try {
+            if (!empty($enquiry->mobile_number)) {
+                $msg = sprintf(
+                    'Hi %s, thanks for your enquiry (ID #%d) for %s. We will get back to you shortly.',
+                    $enquiry->customer_name,
+                    $enquiry->id,
+                    optional($enquiry->service)->name ?? 'our services'
+                );
+                app(WhatsAppService::class)->send($enquiry->mobile_number, $msg);
+            }
+        } catch (\Throwable $e) {
+            // Silent fail
+        }
         return redirect()->route('enquiries.show', $enquiry)->with('status', 'Enquiry created');
     }
 

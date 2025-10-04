@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ServiceRequest;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,22 @@ class ServiceRequestController extends Controller
             'remarks' => 'nullable|string',
         ]);
         $sr = ServiceRequest::create($validated);
+
+        // Optionally notify customer via WhatsApp if phone exists
+        try {
+            $customerPhone = optional($sr->customer)->phone;
+            if ($customerPhone) {
+                app(WhatsAppService::class)->send($customerPhone, sprintf(
+                    'New service request #%d created for %s. Status: %s.',
+                    $sr->id,
+                    optional($sr->service)->name ?? 'service',
+                    str_replace('_', ' ', $sr->status)
+                ));
+            }
+        } catch (\Throwable $e) {
+            // Silent fail to keep UX smooth
+        }
+
         return redirect()->route('service-requests.show', $sr)->with('status', 'Service request created');
     }
 

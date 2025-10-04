@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProgressUpdate;
 use App\Models\ServiceRequest;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -46,6 +47,25 @@ class ProgressUpdateController extends Controller
             $serviceRequest->status = 'in_progress';
         }
         $serviceRequest->save();
+
+        // Optionally notify customer about this progress update via WhatsApp
+        try {
+            if (config('whatsapp.auto_notify_progress')) {
+                $customerPhone = optional($serviceRequest->customer)->phone;
+                if ($customerPhone) {
+                    $message = sprintf(
+                        "Update for request #%d (%s) on %s:\n%s",
+                        $serviceRequest->id,
+                        optional($serviceRequest->service)->name ?? 'service',
+                        now()->format('Y-m-d H:i'),
+                        $update->remark
+                    );
+                    app(WhatsAppService::class)->send($customerPhone, $message);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Silent fail to keep UX smooth
+        }
 
         return back()->with('status', 'Progress remark added');
     }
