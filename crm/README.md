@@ -21,6 +21,38 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Local MySQL setup
+
+To run this application with MySQL locally:
+
+1. Ensure Docker is installed and running.
+2. Start MySQL:
+
+```
+docker compose up -d
+```
+
+The compose file creates a `crm` database with user `crm` / password `crm` exposed on `127.0.0.1:3306`.
+
+3. Copy environment and generate key:
+
+```
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Run database migrations and seeders:
+
+```
+php artisan migrate --seed
+```
+
+For running tests against MySQL, phpunit is configured to use a separate `crm_test` database. Create it once:
+
+```
+mysql -h127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS crm_test;"
+```
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

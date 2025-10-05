@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
         ], [
             'name' => 'Admin',
+            // Laravel 12 casts 'password' => 'hashed' so plain value will be hashed
             'password' => 'password',
         ]);
         $admin->assignRole($adminRole);
